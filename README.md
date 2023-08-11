@@ -6,7 +6,7 @@ Data, source codes and experimental results for paper "*xxx*".
 
 ## Datasets
 
-- All datasets used in our system are provided in xxx. 
+- All datasets used in our system are provided in [datasets](https://github.com/xiaxia-wang/FaithfulRE/tree/main/datasets). 
 
 ## Source Codes and Dependencies
 
