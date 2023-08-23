@@ -38,7 +38,7 @@ Data, source codes and experimental results for paper "*Faithful Logical Rule Ex
 
 - In the main function of [main.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/main.py) file, set the `model` parameter to the required model (i.e., one of `"mmdrum"`, `"smdrum"` and `"drum"`). For example, `model="drum"`. Set the `process` parameter to `"train"`. 
 - Then execute the main function. The model checkpoint will be automatically saved after each training epoch.
-- The MMDRUM, SMDRUM and DRUM model checkpoints (.pt files) can be provided upon request.
+- The MMDRUM, SMDRUM and DRUM model checkpoints (.pt files) could be provided upon request.
 
 ### Evaluation
 
