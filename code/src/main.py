@@ -106,7 +106,6 @@ def main(data_dir, exps_dir, model, process):
         # for thr in [0.2, 0.4, 0.8]:
         #     experiment.compare_prediction_results(thr)
         # experiment.compare_prediction_results()
-        # experiment.get_prediction(0, 0, 1)  # get prediction for a single triple
         # experiment.extract_rule_time_drum(thr=0)
 
 
@@ -115,24 +114,11 @@ if __name__ == "__main__":
     config.read("../config.ini")
 
     datasets_dir = config["DEFAULT"]["datasets_dir"]
-    # eval_dir = config["DEFAULT"]["drum_result_3"]
-    # for dir1 in ["fb237", "nell", "wn18rr"]:
-    #     for dir2 in ["v1", "v2", "v3", "v4"]:
-    #         srcDir = datasets_dir + "/" + dir1 + "_" + dir2
-    #         start = time.time()
-    #         main(srcDir, eval_dir, "drum", "analyze")
-    #         end = time.time()
+    eval_dir = config["DEFAULT"]["drum_result_3"]
+    for dir1 in ["fb237", "nell", "wn18rr"]:
+        for dir2 in ["v1", "v2", "v3", "v4"]:
+            srcDir = datasets_dir + "/" + dir1 + "_" + dir2
+            start = time.time()
+            main(srcDir, eval_dir, "drum", "analyze")
+            end = time.time()
             # print("Training time: ", round(end - start, 3), flush=True)
-
-    # read_training_time_from_file("./out-drum-step3.txt")
-
-    # drum: out-sum-in-sum
-    # smdrum: out-sum-in-max
-    # mmdrum: out-max-in-max
-    # no shuffle seems to result in better performance
-
-
-    eval_dir = config["DEFAULT"]["test_eval_result_temp"]
-    src_dir = datasets_dir + "/wn18rr_v4"
-    print(src_dir, " --> ", eval_dir)
-    main(src_dir, eval_dir, "drum", "analyze")
