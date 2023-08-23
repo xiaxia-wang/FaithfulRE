@@ -102,7 +102,6 @@ def main(data_dir, exps_dir, model, process):
         # experiment.get_attention()
         # experiment.extract_rules_mm()  # not essentially need "evaluate" proces
         # experiment.extract_rules_sm()
-        experiment.extract_rule_explanation_drum(1, 182, 188)
 
 
 if __name__ == "__main__":
@@ -124,17 +123,5 @@ if __name__ == "__main__":
     # main(src_dir, eval_dir, "smdrum", "analyze")
     #
     # eval_dir = config["FAMILY"]["mmdrum_result"]
-    # print(os.path.abspath(src_dir), " --> ", os.path.abspath(eval_dir))
-    # main(src_dir, eval_dir, "mmdrum", "analyze")
-
-    # eval_dir = config["FAMILY"]["drum_r3s4"]
-    # print(os.path.abspath(src_dir), " --> ", os.path.abspath(eval_dir))
-    # main(src_dir, eval_dir, "drum", "analyze")
-    #
-    # eval_dir = config["FAMILY"]["smdrum_r2s3"]
-    # print(os.path.abspath(src_dir), " --> ", os.path.abspath(eval_dir))
-    # main(src_dir, eval_dir, "smdrum", "analyze")
-
-    # eval_dir = config["FAMILY"]["mmdrum_r2s3"]
     # print(os.path.abspath(src_dir), " --> ", os.path.abspath(eval_dir))
     # main(src_dir, eval_dir, "mmdrum", "analyze")
