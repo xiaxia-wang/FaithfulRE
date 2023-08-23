@@ -21,13 +21,36 @@ Data, source codes and experimental results for paper "*Faithful Logical Rule Ex
 
 - All source codes for model training, evaluation and rule extraction are provided in [code/src](https://github.com/xiaxia-wang/FaithfulRE/tree/main/code/src). 
 - Here we briefly explain the structure of source codes.
-  - [data.py]()
-  - [model.py]()
-  - 
+  - [data.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/data.py) provides a data loader, which parses the original dataset and feeds it to the model.
+  - [experiment.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/experiment.py) contains all the experimental process, including model training, performance evaluation and rule extraction.
+  - [model.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/model.py) provides the neural network models of MMDRUM, SMDRUM and DRUM.
+  - [main.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/main.py) is the main entrance for training and evaluating the corresponding model.
+  - Additionally, we provide a transformer-based rule learning model that apply transformer layers to learn attention tensors for each predicate. The related experiment process and the main entrance are provided in [experiment_gpu.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/experiment_gpu.py) and [main_transformer.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/main_transformer.py), respectively. For more details, please refer to the appendix of our paper.
 
 ## Experiments
 
-Data and experimental results are provided in xxx.
+### Set up
+
+- Paths of datasets and evaluation results could be customized in [code/config.ini](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/config.ini). 
+- Default hyper-parameters could be modified in [main.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/main.py) file.
+
+### Training
+
+- In the main function of [main.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/main.py) file, set the `model` parameter to the required model (i.e., one of `"mmdrum"`, `"smdrum"` and `"drum"`). For example, `model="drum"`. Set the `process` parameter to `"train"`. 
+- Then execute the main function. The model checkpoint will be automatically saved after each training epoch.
+- The MMDRUM, SMDRUM and DRUM model checkpoints (.pt files) are available upon request.
+
+### Evaluation
+
+- Analogously set the `model` parameter as the training process, and set the `process` parameter to `"evaluate"`. 
+- Then execute the main function. The evaluate process includes getting the predictions of all the test cases, and computing all evaluation metrics on the test sets.
+
+### Rule Extraction
+
+- Analogously set the `model` parameter as above, and set the `process` parameter to `"analyze"`. 
+- Execute the main function to extract (Datalog) rules from the MMDRUM or SMDRUM model. For DRUM model, one can input a specific triple and get the Datalog-neq rule as its explanation.
+
+
 
 > If you have any question about the codes or experimental results, please email to xxx.
 
