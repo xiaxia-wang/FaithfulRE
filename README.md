@@ -7,7 +7,7 @@ Data, source codes and experimental results for paper "*Faithful Logical Rule Ex
 ## Datasets
 
 - All datasets used in our paper are provided in [datasets](https://github.com/xiaxia-wang/FaithfulRE/tree/main/datasets). 
-- For inductive knowledge graph completion, we reused the datasets and splits from the [Grail benchmark](https://github.com/kkteru/grail/tree/master/data), i.e., FB15K237 (V1--V4), NELL995 (V1--V4), and WN18RR (V1--V4). We further split each original training set into 3:1 training facts and training labels on a random basis. Analogously, each testing set was also split into 3:1 testing facts and testing labels. 
+- For inductive knowledge graph completion, we reused the datasets and splits from the [Grail benchmark](https://github.com/kkteru/grail/tree/master/data), i.e., FB15K237 (V1--V4), NELL995 (V1--V4), and WN18RR (V1--V4). We further split each original training set into 3:1 training facts and training labels on a random basis. Analogously, each testing set was also split into 3:1 testing facts and (positive) testing labels. We randomly sampled negative examples as the same number of testing labels. The process of random sampling is provided in [utils.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/utils.py).
 - For the rule extraction experiments, we reused the *family* dataset and its splits from [the original DRUM project](https://github.com/alisadeghian/DRUM).
 
 ## Source Codes and Dependencies
@@ -63,4 +63,3 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](https:
 If you use these data or codes, please kindly cite it as follows:
 
 [will be avaliable after double-blind review period]
-
