@@ -97,12 +97,12 @@ def main(data_dir, exps_dir, model, process):
         # experiment.get_attention()
         experiment.get_prediction_valid()
         experiment.get_prediction_test()
-    elif process == "analyze":
-        assert option.no_norm
         experiment.search_for_beta(option.min_beta, 3, 1e-8)
         experiment.get_test_scores()
-        # experiment.extract_rules_mm()
-        # experiment.extract_rules_sm()
+    elif process == "analyze":
+        assert option.no_norm
+        experiment.extract_rules_mm()
+        experiment.extract_rules_sm()
         # for thr in [0.2, 0.4, 0.8]:
         #     experiment.compare_prediction_results(thr)
         # experiment.compare_prediction_results()
