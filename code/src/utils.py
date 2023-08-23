@@ -192,5 +192,3 @@ if __name__ == "__main__":
     # sample_negative_examples_for_valid()
     # count_dataset_degrees()
 
-    show_all_related_triples(datasets_dir + "/wn18rr_v4/test_facts.txt", "1")
-
