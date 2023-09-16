@@ -48,7 +48,7 @@ Data, source codes and experimental results for paper "*Towards Faithful Rule Ex
 ### Rule Extraction
 
 - Analogously set the `model` parameter as above, and set the `process` parameter to `"analyze"`. 
-- Execute the main function to extract (Datalog) rules from the MMDRUM or SMDRUM model. For DRUM model, one can input a specific triple and get the Datalog-neq rule as its explanation.
+- Execute the main function to extract (Datalog) rules from the MMDRUM or SMDRUM model. For DRUM model, one can input a specific triple and get the multipath rule as its explanation.
 
 
 
