@@ -138,7 +138,15 @@ class Experiment():
             # print(torch.sum(attention_list[0][0], dim=1))
             return attention_list
 
-    def extract_rules_time_mm(self, thr=1e-3):
+    def extract_rules_time_mm(self, thr=-1):
+        # beta = 0.0
+        # with open(os.path.join(self.option.dir, "beta.txt"), "r") as f:
+        #     line = f.readline().rstrip().split("\t")
+        #     beta = float(line[0])
+        # if beta < self.option.min_beta:
+        #     beta = self.option.min_beta
+        # if thr == -1:
+        #     thr = beta
         attention = self.get_attention()
         print("threshold: ", thr, flush=True)
         start = round(time.time() * 1000)
@@ -154,25 +162,24 @@ class Experiment():
                     updated_rules = {}
                     for k in kk: # enumerate over predicates, including identical (the last one)
                         for rule, val in curr_rules.items():
-                            rule = rule + (k,)
+                            if k != self.option.num_operator:
+                                rule = rule + (k,)
                             val *= attn[k]
                             if val > thr:
-                                updated_rules[rule] = val
+                                curr_val = updated_rules.get(rule, 0.0)
+                                updated_rules[rule] = max(curr_val, val)
                     curr_rules = updated_rules
                 # print(len(curr_rules)) # num_relations^3
                 for rule, val in curr_rules.items():  # combine rules of different ranks
                     existing_val = results.get(rule, 0.0)
                     results[rule] = max(existing_val, val)
-            # sorted_rules = sorted(results.items(), key=lambda item: item[1], reverse=True)
-            # results_for_all_heads.append(sorted_rules)
             results_for_all_heads.append(results)
         end = round(time.time() * 1000)
         time_cost = end - start
         print("time cost: ", time_cost, flush=True)
-        # print(results_for_all_heads[2])  # [((p1, p2, p3), value), ...] in descending order of value
         return results_for_all_heads, time_cost
 
-    def extract_rules_mm(self, thr=1e-3, topk=10):
+    def extract_rules_mm(self, thr=1e-3, topk=20):
         attention = self.get_attention()
         print("threshold: ", thr, flush=True)
         kk = list(range(self.option.num_operator + 1))
@@ -187,10 +194,12 @@ class Experiment():
                     updated_rules = {}
                     for k in kk: # enumerate over predicates, including identical (the last one)
                         for rule, val in curr_rules.items():
-                            rule = rule + (k,)
+                            if k != self.option.num_operator:
+                                rule = rule + (k,)
                             val *= attn[k]
                             if val > thr:
-                                updated_rules[rule] = val
+                                curr_val = updated_rules.get(rule, 0.0)
+                                updated_rules[rule] = max(curr_val, val)
                     curr_rules = updated_rules
                 # print(len(curr_rules)) # num_relations^2
                 for rule, val in curr_rules.items():  # combine rules of different ranks
@@ -231,10 +240,12 @@ class Experiment():
                     updated_rules = {}
                     for k in kk: # enumerate over predicates, including identical (the last one)
                         for rule, val in curr_rules.items():
-                            rule = rule + (k,)
+                            if k != self.option.num_operator:
+                                rule = rule + (k,)
                             val *= attn[k]
                             if val > thr:
-                                updated_rules[rule] = val
+                                curr_val = updated_rules.get(rule, 0.0)
+                                updated_rules[rule] = max(curr_val, val)
                     curr_rules = updated_rules
                 # print(len(curr_rules)) # num_relations^3
                 # results.append(sorted(curr_rules.items(), key=lambda item: item[1], reverse=True))
@@ -244,13 +255,15 @@ class Experiment():
             aggregated_rules = {}
             for index in itertools.product(*iter_ranges):
                 value = 0.0
-                rules = []
+                rules = set()
                 for i in range(self.option.rank):
                     subrule = results[i][index[i]]
                     value += subrule[1]
-                    rules.append(subrule[0])
+                    rules.add(subrule[0])
                 if value > thr_aggregate:
-                    aggregated_rules[tuple(rules)] = value
+                    rules = frozenset(rules)
+                    existing_val = aggregated_rules.get(rules, 0.0)
+                    aggregated_rules[rules] = max(existing_val, value)
             results_for_all_heads.append(aggregated_rules)
         end = round(time.time() * 1000)
         time_cost = end - start
@@ -258,7 +271,7 @@ class Experiment():
         # print(len(results_for_all_heads))
         return results_for_all_heads, time_cost
 
-    def extract_rules_sm(self, thr=1e-3, topk=20):
+    def extract_rules_sm(self, thr=1e-3, topk=10):
         attention = self.get_attention()
         print("threshold: ", thr, flush=True)
         thr_aggregate = thr * self.option.rank
@@ -274,22 +287,30 @@ class Experiment():
                     updated_rules = {}
                     for k in kk:  # enumerate over predicates, including identical (the last one)
                         for rule, val in curr_rules.items():
-                            rule = rule + (k,)
+                            if k != self.option.num_operator:
+                                rule = rule + (k,)
                             val *= attn[k]
                             if val > thr:
-                                updated_rules[rule] = val
+                                curr_val = updated_rules.get(rule, 0.0)
+                                updated_rules[rule] = max(curr_val, val)
                     curr_rules = updated_rules
                 results.append(tuple(curr_rules.items()))
                 iter_ranges.append(list(range(len(results[i]))))
+            aggregated_rules = {}
             for index in itertools.product(*iter_ranges):
                 value = 0.0
-                rules = []
+                rules = set()
                 for i in range(self.option.rank):
                     subrule = list(results[i][index[i]])
                     value += subrule[1]
-                    rules.append(tuple(subrule[0][::-1]))
-                if value > thr_aggregate and len(set(rules)) > 1:
-                    results_for_all_heads.append((h, tuple(rules), value))
+                    rules.add(tuple(subrule[0][::-1]))
+                if value > thr_aggregate:
+                    rules = frozenset(rules)
+                    existing_val = aggregated_rules.get(rules, 0.0)
+                    aggregated_rules[rules] = max(existing_val, value)
+            for final_rule, final_val in aggregated_rules.items():
+                results_for_all_heads.append((h, tuple(final_rule), final_val))
+                    # results_for_all_heads.append((h, tuple(rules), value))
         results_for_all_heads = sorted(results_for_all_heads, key=lambda item: item[2], reverse=True)
         # print(results_for_all_heads[2])  # (11, ((24, 16), (15, 5)), 0.3536216714642408)
 
@@ -307,105 +328,46 @@ class Experiment():
             print(head, ": ", body, ": ", round(rule[2], 3), flush=True)
         return results_for_all_heads
 
-    def extract_rule_explanation_drum(self, pred, head, tail, thr=1e-3):
-        graph = defaultdict(set)  # tail: [(rel, head)]
-        for r, h, t in self.data.test_facts:
-            graph[t].add((r, h))
-            graph[h].add((r + self.data.num_relation, t))
-        attention = self.get_attention()
-        print("threshold for each path: ", thr, flush=True)
-        all_paths = []
-        for i in range(self.option.rank):
-            curr_rules = {}
-            attn = attention[i][0].tolist()[pred]
-            for r, h in graph[tail]:  # the first step
-                if attn[r] > thr:
-                    curr_rules[((r, h),)] = attn[r]
-            if attn[-1] > thr:
-                curr_rules[((self.data.num_operator + 1, tail),)] = attn[-1]
-            for j in range(1, self.option.num_step - 2):
-                attn = attention[i][j].tolist()[pred]
-                updated_rules = {}
-                for chain, value in curr_rules.items():  # chain: [(r, h), (r, h), ...]
-                    for next_r, next_h in graph[chain[-1][1]]:
-                        updated_value = value * attn[next_r]
-                        if updated_value > thr:
-                            updated_rules[chain + ((next_r, next_h),)] = updated_value
-                    if value * attn[-1] > thr:
-                        updated_rules[chain + ((self.data.num_operator + 1, chain[-1][1]),)] = value * attn[-1]
-                curr_rules = updated_rules
-            # last layer: only end with head
-            attn = attention[i][self.option.num_step - 1].tolist()[pred]
-            updated_rules = {}
-            for chain, value in curr_rules.items():  # chain: [(r, h), (r, h), ...]
-                for next_r, next_h in graph[chain[-1][1]]:
-                    if next_h == head:
-                        updated_value = value * attn[next_r]
-                        if updated_value > thr:
-                            updated_rules[chain + ((next_r, next_h),)] = updated_value
-                if chain[-1][1] == head and value * attn[-1] > thr:
-                    updated_rules[chain + ((self.data.num_operator + 1, chain[-1][1]),)] = value * attn[-1]
-            updated_rules = sorted(updated_rules.items(), key=lambda item: item[1])
-            all_paths.append(updated_rules)
-
-        parser = self.data.parser["query"]
-        print("======== triple: ", parser.get(pred), head, tail, " ========")
-        for i in range(self.option.rank):
-            print("rank: ", i + 1)
-            for chain, value in all_paths[i]:
-                path = ""
-                for r, h in chain:
-                    path += parser.get(r, "") + ", " + str(h) + " -> "
-                print(path, ": ", value, flush=True)
-        return all_paths
-
-    def extract_rule_time_drum(self, thr_case=0.1, thr=1e-3):
+    def extract_rule_time_drum(self, thr=1e-3):
         link_list = []
         for line in open(os.path.join(self.option.dir, "test_preds_and_probs_all.txt"), "r").readlines():
             case = line.split("\t")
-            if float(case[1]) > thr_case:
+            if float(case[1]) > thr:
                 rht = case[0].split(" ")
                 link_list.append((int(rht[0]), int(rht[1]), int(rht[2])))
         graph = defaultdict(set)  # tail: [(rel, head)]
         for r, h, t in self.data.test_facts:
             graph[t].add((r, h))
             graph[h].add((r + self.data.num_relation, t))
-        attention = self.get_attention()
-        # print(len(attention), len(attention[0]), attention[0][0].shape, self.data.num_relation, self.data.num_operator)
-        print("threshold for each path: ", thr, flush=True)
+        # attention = self.get_attention()
+        assert self.option.num_step == 4
+        ##########################################################
+        print("Model: ", self.option.dir)
+        print("threshold: ", thr, flush=True)
+        # print("number of all test_cases: ", len(link_list))
         start = round(time.time() * 1000)
-        for pred, head, tail in link_list:
-            for i in range(self.option.rank):
-                curr_rules = {}
-                # print(pred, head, tail)
-                attn = attention[i][0].tolist()[pred]
-                for r, h in graph[tail]:  # the first step
-                    if attn[r] > thr:
-                        curr_rules[((r, h),)] = attn[r]
-                if attn[-1] > thr:
-                    curr_rules[((self.data.num_operator + 1, tail),)] = attn[-1]
-                for j in range(1, self.option.num_step - 2):
-                    attn = attention[i][j].tolist()[pred]
-                    updated_rules = {}
-                    for chain, value in curr_rules.items():  # chain: [(r, h), (r, h), ...]
-                        for next_r, next_h in graph[chain[-1][1]]:
-                            updated_value = value * attn[next_r]
-                            if updated_value > thr:
-                                updated_rules[chain + ((next_r, next_h),)] = updated_value
-                        if value * attn[-1] > thr:
-                            updated_rules[chain + ((self.data.num_operator + 1, chain[-1][1]),)] = value * attn[-1]
-                    curr_rules = updated_rules
-                # last layer: only end with head
-                attn = attention[i][self.option.num_step - 1].tolist()[pred]
-                updated_rules = {}
-                for chain, value in curr_rules.items():  # chain: [(r, h), (r, h), ...]
-                    for next_r, next_h in graph[chain[-1][1]]:
-                        if next_h == head:
-                            updated_value = value * attn[next_r]
-                            if updated_value > thr:
-                                updated_rules[chain + ((next_r, next_h),)] = updated_value
-                    if chain[-1][1] == head and value * attn[-1] > thr:
-                        updated_rules[chain + ((self.data.num_operator + 1, chain[-1][1]),)] = value * attn[-1]
+        all_explanation = []
+        # count = 0
+        for r, h, t in link_list:  # loop over cases
+            # count += 1
+            # if count % 50 == 0:
+            #     print(count)
+            curr_exp = {}
+            prev = set()
+            prev.add((t,))
+            for j in range(self.option.num_step - 1):
+                curr = set()
+                for p in prev:
+                    for rr, hh in graph[p[-1]]:
+                        curr.add(p + (rr, hh))
+                    curr.add(p + (self.data.num_operator, p[-1]))
+                prev = curr
+            for p in prev:
+                if p[-1] == h:
+                    path = (p[1], p[3], p[5])
+                    num = curr_exp.get(path, 0) + 1
+                    curr_exp[path] = num
+            all_explanation.append(tuple(curr_exp.items()))
         end = round(time.time() * 1000)
         time_cost = end - start
         print("time cost: ", time_cost, flush=True)
