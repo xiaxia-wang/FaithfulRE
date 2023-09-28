@@ -52,7 +52,7 @@ def main(data_dir, exps_dir, model, process):
     parser.add_argument('--thr', default=1e-20, type=float)
     parser.add_argument('--dropout', default=0., type=float)
     # evaluation
-    parser.add_argument('--min_beta', default=1e-10, type=int)
+    parser.add_argument('--min_beta', default=1e-6, type=int)
 
     option = Option(vars(parser.parse_args()))
 
@@ -97,7 +97,7 @@ def main(data_dir, exps_dir, model, process):
         # experiment.get_attention()
         experiment.get_prediction_valid()
         experiment.get_prediction_test()
-        experiment.search_for_beta(option.min_beta, 3, 1e-8)
+        experiment.search_for_beta(0, 1, 1e-6)
         experiment.get_test_scores()
     elif process == "analyze":
         assert option.no_norm
