@@ -52,7 +52,7 @@ def main(data_dir, exps_dir, model, process):
     parser.add_argument('--thr', default=1e-20, type=float)
     parser.add_argument('--dropout', default=0., type=float)
     # evaluation
-    parser.add_argument('--min_beta', default=1e-6, type=int)
+    parser.add_argument('--min_beta', default=1e-6, type=float)
 
     option = Option(vars(parser.parse_args()))
 
