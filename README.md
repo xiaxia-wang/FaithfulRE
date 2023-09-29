@@ -25,7 +25,7 @@ Data, source codes and experimental results for paper "*Faithful Rule Extraction
   - [experiment.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/experiment.py) contains all the experimental process, including model training, performance evaluation and rule extraction.
   - [model.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/model.py) provides the neural network models of MMDRUM, SMDRUM and DRUM.
   - [main.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/main.py) is the main entrance for training and evaluating the corresponding model.
-  - Additionally, we provide a transformer-based rule learning model that apply transformer layers to learn attention tensors for each predicate. The related experiment process and the main entrance are provided in [experiment_gpu.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/experiment_gpu.py) and [main_transformer.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/main_transformer.py), respectively. For more details, please refer to the appendix of our paper.
+%  - Additionally, we provide a transformer-based rule learning model that apply transformer layers to learn attention tensors for each predicate. The related experiment process and the main entrance are provided in [experiment_gpu.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/experiment_gpu.py) and [main_transformer.py](https://github.com/xiaxia-wang/FaithfulRE/blob/main/code/src/main_transformer.py), respectively. For more details, please refer to the appendix of our paper.
 
 ## Experiments
 
