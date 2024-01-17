@@ -52,7 +52,7 @@ Data, source codes and experimental results for paper "*Faithful Rule Extraction
 
 
 
-> If you have any question about the codes or experimental results, please email to xxx.
+> If you have any question about the codes or experimental results, please email [xiaxia.wang@cs.ox.ac.uk](mailto:xiaxia.wang@cs.ox.ac.uk).
 
 ## License
 
@@ -62,4 +62,11 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](https:
 
 If you use these data or codes, please kindly cite it as follows:
 
-[will be avaliable after double-blind review period]
+```
+@inproceedings{faithfulre,
+  author       = {Xiaxia Wang and David J. Tena Cucala and Bernardo Cuenca Grau and Ian Horrocks},
+  title        = {Faithful Rule Extraction for Differentiable Rule Learning Models},
+  booktitle    = {The 12th International Conference on Learning Representations},
+  year         = {2024}
+}
+```
