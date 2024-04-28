@@ -328,6 +328,60 @@ class Experiment():
             print(head, ": ", body, ": ", round(rule[2], 3), flush=True)
         return results_for_all_heads
 
+    
+    def extract_rule_explanation_drum(self, pred, head, tail, thr=1e-3):
+        graph = defaultdict(set)  # tail: [(rel, head)]
+        for r, h, t in self.data.test_facts:
+            graph[t].add((r, h))
+            graph[h].add((r + self.data.num_relation, t))
+        attention = self.get_attention()
+        print("threshold for each path: ", thr, flush=True)
+        all_paths = []
+        for i in range(self.option.rank):
+            curr_rules = {}
+            attn = attention[i][0].tolist()[pred]
+            for r, h in graph[tail]:  # the first step
+                if attn[r] > thr:
+                    curr_rules[((r, h),)] = attn[r]
+            if attn[-1] > thr:
+                curr_rules[((self.data.num_operator + 1, tail),)] = attn[-1]
+            for j in range(1, self.option.num_step - 2):
+                attn = attention[i][j].tolist()[pred]
+                updated_rules = {}
+                for chain, value in curr_rules.items():  # chain: [(r, h), (r, h), ...]
+                    for next_r, next_h in graph[chain[-1][1]]:
+                        updated_value = value * attn[next_r]
+                        if updated_value > thr:
+                            updated_rules[chain + ((next_r, next_h),)] = updated_value
+                    if value * attn[-1] > thr:
+                        updated_rules[chain + ((self.data.num_operator + 1, chain[-1][1]),)] = value * attn[-1]
+                curr_rules = updated_rules
+            # last layer: only end with head
+            attn = attention[i][self.option.num_step - 1].tolist()[pred]
+            updated_rules = {}
+            for chain, value in curr_rules.items():  # chain: [(r, h), (r, h), ...]
+                for next_r, next_h in graph[chain[-1][1]]:
+                    if next_h == head:
+                        updated_value = value * attn[next_r]
+                        if updated_value > thr:
+                            updated_rules[chain + ((next_r, next_h),)] = updated_value
+                if chain[-1][1] == head and value * attn[-1] > thr:
+                    updated_rules[chain + ((self.data.num_operator + 1, chain[-1][1]),)] = value * attn[-1]
+            updated_rules = sorted(updated_rules.items(), key=lambda item: item[1])
+            all_paths.append(updated_rules)
+
+        parser = self.data.parser["query"]
+        print("======== triple: ", parser.get(pred), head, tail, " ========")
+        for i in range(self.option.rank):
+            print("rank: ", i + 1)
+            for chain, value in all_paths[i]:
+                path = ""
+                for r, h in chain:
+                    path += parser.get(r, "") + ", " + str(h) + " -> "
+                print(path, ": ", value, flush=True)
+        return all_paths
+
+    
     def extract_rule_time_drum(self, thr=1e-3):
         link_list = []
         for line in open(os.path.join(self.option.dir, "test_preds_and_probs_all.txt"), "r").readlines():
