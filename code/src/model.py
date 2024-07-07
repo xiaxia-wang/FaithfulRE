@@ -115,9 +115,11 @@ class Predictor_SM(nn.Module, object):
 
                     db_results.append(memory_read * attention[-1])
                     # each element: torch.Size([128, 10945]) 128: batch_size
-                    added_db_results = F.normalize(sum(db_results),
-                                                   p=1,
-                                                   eps=self.option.thr)
+                    added_db_results, _ = torch.max(torch.stack(db_results, dim=0), dim=0)
+                    if not self.option.no_norm:
+                        added_db_results = F.normalize(added_db_results,
+                                                       p=1,
+                                                       eps=self.option.thr)
                     memory_read = added_db_results
             memory_list.append(memory_read)
         prediction = torch.sum(torch.stack(memory_list, dim=0), dim=0)
@@ -147,9 +149,11 @@ class Predictor_MM(nn.Module, object):
                         db_results.append(torch.t(product) * attention[r])
 
                     db_results.append(memory_read * attention[-1])
-                    added_db_results = F.normalize(sum(db_results),
-                                                   p=1,
-                                                   eps=self.option.thr)
+                    added_db_results, _ = torch.max(torch.stack(db_results, dim=0), dim=0)
+                    if not self.option.no_norm:
+                        added_db_results = F.normalize(added_db_results,
+                                                       p=1,
+                                                       eps=self.option.thr)
                     memory_read = added_db_results
             memory_list.append(memory_read)
         # prediction = torch.sum(torch.stack(memory_list, dim=0), dim=0)
